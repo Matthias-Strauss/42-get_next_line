@@ -6,7 +6,7 @@
 /*   By: mstrauss <mstrauss@student.42heilbronn.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 00:25:05 by mstrauss          #+#    #+#             */
-/*   Updated: 2023/11/25 17:37:23 by mstrauss         ###   ########.fr       */
+/*   Updated: 2023/11/27 22:40:04 by mstrauss         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	ft_strlen(const char *s)
 /// @param src			source string
 /// @param dstsize		size of dst INCLUDING Nul-termination
 /// @return				length of source
-size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
+size_t	ft_strlcpy(char *dst, char *src, size_t dstsize)
 {
 	unsigned long	i;
 
@@ -57,7 +57,7 @@ size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 /// @param s2 	String 2
 /// @return 	New composite String
 ///				NULL if the allocation fails.
-char	*ft_strjoin(char *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	int		i;
 	int		j;
@@ -65,15 +65,18 @@ char	*ft_strjoin(char *s1, char const *s2)
 
 	i = -1;
 	j = -1;
+	if (s1 == NULL)
+		return (free(s2), NULL);
 	ptr = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
 	if (ptr == NULL)
-		return (NULL);
+		return (free(s1), NULL);
 	while (s1 && s1[++i])
 		ptr[i] = s1[i];
 	while (s2 && s2[++j])
 		ptr[i + j] = s2[j];
 	ptr[i + j] = '\0';
 	free(s1);
+	s1 = NULL;
 	return (ptr);
 }
 
@@ -82,7 +85,7 @@ char	*ft_strjoin(char *s1, char const *s2)
 /// @param s1 	String 1.
 /// @return 	Pointer to allocated memory.
 ///				if fail; return NULL and set errno to ENOMEM.
-char	*ft_strdup(const char *s1)
+char	*ft_strdup(char *s1)
 {
 	int		len;
 	int		i;
@@ -105,7 +108,7 @@ char	*ft_strdup(const char *s1)
 /// @param start 	The start index of the substring in the string ’s’.
 /// @param len 		The maximum length of the substring.
 /// @return			The substring. NULL if the allocation fails.
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+char	*ft_substr(char *s, unsigned int start, size_t len)
 {
 	char			*dst;
 	unsigned long	s_len;
@@ -115,7 +118,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	{
 		dst = ft_calloc(1, sizeof(char));
 		if (dst == NULL)
-			return (NULL);
+			return (free(dst), free(s), NULL);
 		*dst = '\0';
 		return (dst);
 	}
@@ -123,13 +126,13 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	{
 		dst = ft_calloc(s_len - start + 1, sizeof(char));
 		if (dst == NULL)
-			return (NULL);
+			return (free(dst), free(s), NULL);
 		len = s_len;
 	}
 	else
 		dst = ft_calloc(len + 1, sizeof(char));
 	if (dst == NULL)
-		return (NULL);
+		return (free(dst), free(s), NULL);
 	ft_strlcpy(dst, &s[start], len + 1);
 	return (dst);
 }
@@ -169,9 +172,11 @@ int	ft_strchr(char *s, int c)
 {
 	int	i;
 
+	if (s == NULL)
+		return (0);
 	i = -1;
 	c = (char)c;
-	if (!s)
+	if (s == NULL)
 		return (0);
 	while (s[++i] != '\0')
 		if (s[i] == c)
@@ -205,6 +210,7 @@ void	*ft_calloc(size_t count, size_t size)
 
 	i = 0;
 	n = count * size;
+	ptr = NULL;
 	ptr = malloc(n);
 	if (ptr == NULL)
 		return (NULL);
